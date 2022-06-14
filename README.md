@@ -1,5 +1,9 @@
-bilt-2022-block-party!!
-==================
+# BILT-2022-Session2.4 - BIM AND WEB3.0 – CROWDSOURCED FUNDING, DESIGN AND DEVELOPMENT
+
+Demo of a decentralized App or dApp that allows anyone to create a proposal, gain funding towards it from supporters. Once it achieves it's funding goal it becomes a Project. 
+Think KickStarter or Go FundMe with the added benefit we can onboard Architects who can create and pay the consultant team all on the same platform. Welcome to Block Party!! 
+
+---
 
 This [React] app was initialized with [create-near-app]
 
@@ -100,3 +104,5 @@ On Windows, if you're seeing an error containing `EPERM` it may be related to sp
   [NEAR Wallet]: https://wallet.testnet.near.org/
   [near-cli]: https://github.com/near/near-cli
   [gh-pages]: https://github.com/tschaub/gh-pages
+
+- [Simon Palmer - @simondpalmer](https://github.com/simondpalmer)
