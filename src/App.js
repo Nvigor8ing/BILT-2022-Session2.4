@@ -37,7 +37,7 @@ const theme = createTheme({
 });
 
 const App = () => {
-	const [fetching, setFetching] = useState(false);
+	const [fetching, setFetching] = useState([]);
 	const [proposals, setProposals] = useState([]);
   const [projects, setProjects] = useState([]);
 	const [amount, setAmount] = useState('');
@@ -60,22 +60,37 @@ const App = () => {
             from_index: "0",
             limit: parseInt(supply)});
             
+            setFetching(results)
+            
             for(var i=0; i<results.length;++i) {
-              results[i].metadata.funded = 0;
-                for( let [key, value] of Object.entries (results[i].supporters)) {
-                  let fund = formatNearAmount(value)
-                  results[i].metadata.funded += fund
-                }
+              if (results[i].metadata.funding_total !== null) {
+                let parsed = formatNearAmount(results[i].metadata.funding_total)  
+                results[i].metadata.funding_total = parsed            
+              };
             }
+
             const re = /(?:\"|\')(?<key>[\w\d]+)(?:\"|\')(?:\:\s*)(?:\"|\')?(?<value>[\w\s-]*)(?:\"|\')?/
             for (var i = 0; i < results.length; ++i) {
-              if (re.exec(results[i].metadata.extra) !== null) {
-                var parsed = [JSON.parse(results[i].metadata.extra)]
-                results[i].metadata.extra = parsed
+              if (re.exec(results[i].metadata.phase) !== null) {
+                var parsed = [JSON.parse(results[i].metadata.phase)]
+                results[i].metadata.phase = parsed
               }
             }
+
+            for (var i = 0; i < results.length; ++i) {
+              if (results[i].metadata.phase) {
+                var start = new Date(results[i].metadata.phase[0].start_date)
+                let formatted_start = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate()
+                results[i].metadata.phase[0].start_date = formatted_start
+
+                var due = new Date(results[i].metadata.phase[0].due_date)
+                let formatted_due = due.getFullYear() + "-" + (due.getMonth() + 1) + "-" + due.getDate()
+                results[i].metadata.phase[0].due_date = formatted_due
+              }
+            }
+
             for(var i=0; i<results.length;++i) {
-              if (results[i].metadata.funded >= results[i].metadata.funding_goal) {
+              if (results[i].metadata.funding_total >= results[i].metadata.funding_goal || results[i].metadata.reference){
                 setProjects(oldProjects => [...oldProjects, results[i]])
               } else {
                 setProposals(oldProposals => [...oldProposals, results[i]])
@@ -84,7 +99,12 @@ const App = () => {
           }
     }
     recieveProposals()
+
   }, [])
+
+  useEffect(() => {
+    console.log(fetching)
+  }, [fetching])
 
   return (
     <Router>

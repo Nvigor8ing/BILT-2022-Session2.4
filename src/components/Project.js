@@ -61,7 +61,7 @@ export default function Project({ project }) {
   const formatNearAmount = (amount) => {
     let formatted = amount.toLocaleString('fullwide', { useGrouping: false })
     formatted = utils.format.formatNearAmount(formatted)
-    return Math.floor(formatted * 100) / 100 + " N"
+    return Math.floor(formatted * 100) / 100
   }
 
   const formatPercentageAmount = (amount) => {
@@ -91,13 +91,6 @@ export default function Project({ project }) {
               <Typography variant="body2">
                 {project.metadata.description}
               </Typography>
-              {project.metadata.extra &&
-                <Typography style={{ fontWeight: 600 }} variant="body2" component="div">
-                  Phase:
-                </Typography>}
-              {project.metadata.extra && <Typography variant="body2" component="div">
-                {project.metadata.extra[0].name}
-              </Typography>}
               <Typography style={{ fontWeight: 600 }} variant="body2">
                 Owner:
               </Typography>
@@ -110,47 +103,63 @@ export default function Project({ project }) {
               <Typography variant="body2">
                 {project.metadata.street_address}
               </Typography>
-              {project.metadata.extra && <Typography style={{ fontWeight: 600 }} variant="body2">
-                Architect:
-              </Typography>}
-              {project.metadata.extra && <Typography variant="body2">
-                {project.metadata.extra[0].lead}
-              </Typography>}
               <Typography style={{ fontWeight: 600 }} variant="body2">
-                Sub-Consultants:
+                Funding Total:
               </Typography>
               <Typography variant="body2">
+                {project.metadata.funding_total + " N"}
+              </Typography>
+              {project.metadata.phase &&
+                <Typography style={{ fontWeight: 600 }} variant="h6" component="div">
+                  Current Project Phase:
+                </Typography>}
+              {project.metadata.phase && <Typography variant="h6" component="div">
+                {project.metadata.phase[0].name}
+                {project.metadata.phase && <Typography style={{ fontWeight: 600 }} variant="h6">
+                {project.metadata.phase[0].scope} %
+              </Typography>}
+                {project.metadata.phase && <Typography style={{ fontWeight: 600 }} variant="body2">
+                Start Date:
+              </Typography>}
+              {project.metadata.phase && <Typography variant="body2"> 
+                {project.metadata.phase[0].start_date}
+              </Typography>}
+              {project.metadata.phase && <Typography style={{ fontWeight: 600 }} variant="body2">
+                Due Date:
+              </Typography>}
+              {project.metadata.phase && <Typography variant="body2">
+                {project.metadata.phase[0].due_date}
+              </Typography>}
+              </Typography>}
+              {project.metadata.phase && <Typography style={{ fontWeight: 600 }} variant="body2">
+                Architect:
+              </Typography>}
+              {project.metadata.phase && <Typography variant="body2">
+                {project.metadata.phase[0].lead}
+              </Typography>}
+              {project.metadata.phase && <Typography style={{ fontWeight: 600 }} variant="body2">
+                Sub-Consultants:
+              </Typography>}
+              {<Typography variant="body2">
                 {Object.entries(project.subconsultants).map(([key, value]) => (
                   <div className="item" key={key}>
                     {key}:  {formatPercentageAmount(value)}
                   </div>
                 )
                 )}
-              </Typography>
-              <Typography style={{ fontWeight: 600 }} variant="body2">
-                Funding Goal:
-              </Typography>
-              <Typography variant="body2">
-                {project.metadata.funding_goal + " N"}
-              </Typography>
-              <Typography style={{ fontWeight: 600 }} variant="body2">
-                Funding Total:
-              </Typography>
-              <Typography variant="body2">
-                {project.metadata.funded + " N"}
-              </Typography>
+              </Typography>}
               <Stack spacing={1}>
-                {project.metadata.extra && <Typography style={{ fontWeight: 600 }} variant="body2">
+                {project.metadata.phase && <Typography style={{ fontWeight: 600 }} variant="body2">
                   BIM File:
                 </Typography>}
-                {project.metadata.extra && <a href={project.metadata.media}>
+                {project.metadata.phase && <a href={project.metadata.media}>
                   <img src={project.metadata.media} >
                   </img>
                 </a>}
                 <Grid container spacing={1}>
                   {project.owner_id == window.accountId && <Grid item xs={8}>
-                    {project.owner_id == window.accountId && <Typography variant="h5">
-                      Project Phase
+                    {project.owner_id == window.accountId && <Typography variant="h6">
+                      Create New Phase
                     </Typography>}
                   </Grid>}
                   {project.owner_id == window.accountId && <Grid item xs={4}>
@@ -168,12 +177,12 @@ export default function Project({ project }) {
                   {project.owner_id == window.accountId && AppointProjectLead(project.token_id)}
                 </Collapse>
                 <Grid container spacing={1}>
-                  {project.metadata.extra && project.metadata.extra[0].lead == window.accountId && <Grid item xs={8}>
-                    {project.metadata.extra && project.metadata.extra[0].lead == window.accountId && <Typography variant="h5">
-                      Project Team
+                  {project.metadata.phase && project.metadata.phase[0].lead == window.accountId && <Grid item xs={8}>
+                    {project.metadata.phase && project.metadata.phase[0].lead == window.accountId && <Typography variant="h6">
+                      Create Team For Phase
                     </Typography>}
                   </Grid>}
-                  {project.metadata.extra && project.metadata.extra[0].lead == window.accountId && <Grid item xs={4}>
+                  {project.metadata.phase && project.metadata.phase[0].lead == window.accountId && <Grid item xs={4}>
                     <ExpandMore
                       expand={expandedTeam}
                       onClick={handleExpandTeamClick}
@@ -185,9 +194,9 @@ export default function Project({ project }) {
                   </Grid>}
                 </Grid>
                 <Collapse in={expandedTeam} timeout="auto" unmountOnExit>
-                  {AppointProjectTeam(project.token_id)}
+                  {AppointProjectTeam(project.token_id, project.metadata.funding_min_deposit)}
                 </Collapse>
-                {project.metadata.extra && project.metadata.extra[0].lead == window.accountId && PayTeam(project.token_id, project.metadata.extra[0].lead, project.metadata.funded, project.metadata.extra[0].scope, project.subconsultants)}
+                {project.metadata.reference == "Team" && project.metadata.phase[0].lead == window.accountId && PayTeam(project.token_id, project.metadata.phase[0].lead, project.metadata.funding_total, project.metadata.phase[0].scope, project.subconsultants)}
               </Stack>
             </CardContent>
           </React.Fragment>
@@ -245,7 +254,7 @@ const AppointProjectLead = (token) => {
       account_id: `${lead}`,
       phase: phasejson
     },
-      "300000000000000", "3000000000000000000000000"
+      "300000000000000", "1000000000000000000000000"
     );
   }
 
@@ -307,7 +316,7 @@ const AppointProjectLead = (token) => {
   )
 }
 
-const AppointProjectTeam = (token) => {
+const AppointProjectTeam = (token, funding_min) => {
 
   const [firstsub, setFirstSub] = React.useState();
   const [firstsubamt, setFirstSubAmt] = React.useState(1000);
@@ -347,7 +356,7 @@ const AppointProjectTeam = (token) => {
       subconsultants_funds: subGroup,
       bim_file: "https://gateway.pinata.cloud/ipfs/QmUw6rr1AyApS8qFyo3FYS2Sc4Y4iVrPN6LevFgoUmdrsL"
     },
-      "300000000000000", "3000000000000000000000000"
+      "300000000000000", "1000000000000000000000000"
     );
   }
 
@@ -369,12 +378,12 @@ const AppointProjectTeam = (token) => {
               <Slider
                 color="secondary"
                 aria-label="Min. Deposit"
-                defaultValue={20}
+                defaultValue={0}
                 valueLabelDisplay="on"
                 step={5}
-                min={5}
+                min={0}
                 max={100}
-                onChange={(e) => setFirstSubAmt(e.target.value)}
+                onChange={(e) => setFirstSubAmt(e.target.value * 100)}
               />
               <Typography variant="caption" gutterBottom component="div">
                 % amount
@@ -393,12 +402,12 @@ const AppointProjectTeam = (token) => {
               <Slider
                 color="secondary"
                 aria-label="Min. Deposit"
-                defaultValue={30}
+                defaultValue={0}
                 valueLabelDisplay="on"
                 step={5}
-                min={5}
+                min={0}
                 max={100}
-                onChange={(e) => setSecondSubAmt(e.target.value)}
+                onChange={(e) => setSecondSubAmt(e.target.value * 100)}
               />
               <Typography variant="caption" gutterBottom component="div">
                 % amount
@@ -417,12 +426,12 @@ const AppointProjectTeam = (token) => {
               <Slider
                 color="secondary"
                 aria-label="Min. Deposit"
-                defaultValue={20}
+                defaultValue={0}
                 valueLabelDisplay="on"
                 step={5}
-                min={5}
+                min={0}
                 max={100}
-                onChange={(e) => setThirdSubAmt(e.target.value)}
+                onChange={(e) => setThirdSubAmt(e.target.value * 100)}
               />
               <Typography variant="caption" gutterBottom component="div">
                 % amount
@@ -454,39 +463,47 @@ const PayTeam = (token, receiver, totalfunds, phaseScope, subAmounts) => {
     },
   });
 
+  const formatNearAmount = (amount) => {
+    let formatted = amount.toLocaleString('fullwide', { useGrouping: false })
+    formatted = utils.format.formatNearAmount(formatted)
+    return Math.floor(formatted * 100) / 100
+  }
+
   const makePayout = async (token, receiver, funds, scope, subAmounts) => {
 
     let subtotal = 0
     let percentLead = 0
     let percentTeam = 0
-    let balance = 0
+    let parsed_balance_payment = 0
     let balanceNear = 0
+    let parsed_total_funds = 0
+    let scopefunds = 0
     for (const [key, value] of Object.entries(subAmounts)) {
       subtotal += value
     }
 
     if(scope) {
-      let scopefunds = (scope / 100 ) * funds
-      percentTeam = subtotal / 10000
-      percentLead = 1 - percentTeam
-      balanceNear = scopefunds
-      balance = utils.format.parseNearAmount(scopefunds.toString())
+      scopefunds = (scope / 100 ) * funds
+      parsed_balance_payment = utils.format.parseNearAmount(scopefunds.toString())
       
     }
 
     const supportProposal = await contract.nft_phase_payout({
       token_id: `${token}`,
-      balance: `${balance}`,
+      balance: `${parsed_balance_payment}`,
       max_len_payout: 100
     },
       "300000000000000", "1"
     );
+
+    console.log(funds)
+    console.log(scopefunds)
     console.log(percentLead)
     console.log(percentTeam)
     console.log(balanceNear)
-    console.log(balance)
-
-    
+    console.log(parsed_total_funds)
+    console.log(parsed_balance_payment)
+   
   }
 
   return (

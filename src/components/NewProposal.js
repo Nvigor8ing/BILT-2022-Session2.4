@@ -33,8 +33,8 @@ const NewProposal = (props) => {
     const [title, setTitle] = React.useState('Skate Park');
     const [description, setDescription] = React.useState('Skate park for everybody to enjoy');
     const [address, setAddress] = React.useState('1234 Pueblo Lane, Build City');
-    const [fundingMin, setFundingMin] = React.useState("5000000000000000000000000");
-    const [funding, setFunding] = React.useState("30000000000000000000000000");
+    const [fundingMin, setFundingMin] = React.useState(5);
+    const [funding, setFunding] = React.useState(30);
 
     const handleChange = (newValue) => {
       setValue(newValue);
@@ -57,7 +57,7 @@ const NewProposal = (props) => {
             },
             receiver_id: `${window.accountId}`
           },
-          "300000000000000", "3000000000000000000000000"
+          "300000000000000", "1000000000000000000000000"
           );
       }
   
@@ -95,7 +95,7 @@ const NewProposal = (props) => {
                         marks
                         min={1}
                         max={10}
-                        onChange={(e) => setFundingMin(utils.format.parseNearAmount(e.target.value.toString()))}
+                        onChange={(e) => setFundingMin(e.target.value)}
                     />
                     <Typography variant="caption" gutterBottom component="div">
                         Select a minimum deposit
@@ -112,7 +112,7 @@ const NewProposal = (props) => {
                         marks
                         min={5}
                         max={50}
-                        onChange={(e) => setFunding(utils.format.parseNearAmount(e.target.value.toString()))}
+                        onChange={(e) => setFunding(e.target.value)}
                     />
                     <Typography variant="caption" gutterBottom component="div">
                         Select funding goal

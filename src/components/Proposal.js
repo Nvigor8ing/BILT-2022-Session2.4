@@ -59,7 +59,7 @@ export default function Proposal({ proposal }) {
             Address: {proposal.metadata.street_address}
             </Typography>
             <Typography variant="body2">
-            Funding: {(proposal.metadata.funded) + " N"}
+            Funding: {(proposal.metadata.funding_total) + " N"}
             </Typography>
             <Typography variant="body2">
             Funding Goal: {(proposal.metadata.funding_goal) + " N"}

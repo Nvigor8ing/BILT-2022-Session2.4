@@ -96,6 +96,7 @@ impl Contract {
         let mut token_meta = self.token_metadata_by_id.get(&token_id).expect("No token for metadata");
 
         token_meta.media = bim_file;
+        token_meta.reference.replace("Team".to_string());
 
         token.subconsultants.clear();
 
@@ -157,12 +158,29 @@ impl Contract {
             Some(&current_amount) => token.supporters.insert(supporter_id, current_amount + amount),
             None => token.supporters.insert(supporter_id, amount),
         };
-        //check if supporter exists
-        //*token.supporters.entry(supporter_id).or_insert(amount) += amount;
-        //otherwise 
-        //token.supporters.insert(supporter_id,amount)
+        let supporters = &token.supporters;
+        //add all supporters funds
+        let mut total_funding = 0;
+        for (_k, v) in supporters.iter() {
+            total_funding += *v;
+        };
+
+        //get the metadata object to update total funding
+        let mut token_meta = self.token_metadata_by_id.get(&token_id).expect("No token for metadata");
+
+        token_meta.funding_total.replace(total_funding);
+
+        let project_ref = "Project";
+        if token_meta.funding_total >= token_meta.funding_goal {
+            token_meta.reference.replace(project_ref.to_string())
+        } else {
+            None
+        };
         //insert the token ID and metadata
         self.tokens_by_id.insert(&token_id, &token);
+
+        //insert the token ID and metadata
+        self.token_metadata_by_id.insert(&token_id, &token_meta);
 
         //if funded is true return money to wanna be supporter
 

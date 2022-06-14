@@ -2,4 +2,5 @@ node_modules
 neardev
 dist
 out
+contract\target
 .cache

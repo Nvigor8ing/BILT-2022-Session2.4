@@ -21,6 +21,7 @@ pub trait NonFungibleTokenCore {
         balance: U128,
         max_len_payout: u32,
     ) -> Payout;
+
 }
 
 #[near_bindgen]
@@ -148,14 +149,17 @@ impl NonFungibleTokenCore for Contract {
         let mut total_perpetual = 0;
         //get the u128 version of the passed in balance (which was U128 before)
         let balance_u128 = u128::from(balance);
+        //let funding_total_u128 = u128::from(funding_total);
+
+        //let remainder_funds = funding_total_u128 - balance_u128;
 		//keep track of the payout object to send back
         let mut payout_object = Payout {
             payout: HashMap::new()
         };
         //get the subconsultants object from token
         //get the token object from the token ID if it exists
-        let token = self.tokens_by_id.get(&token_id).expect("No token");
-		let subconsultants = token.subconsultants;
+        let mut token = self.tokens_by_id.get(&token_id).expect("No token");
+		let subconsultants = token.subconsultants.clone();
 
         //make sure we're not paying out to too many people (GAS limits this)
 		assert!(subconsultants.len() as u32 <= max_len_payout, "Market cannot payout to that many receivers");
@@ -175,23 +179,37 @@ impl NonFungibleTokenCore for Contract {
 		// payout to previous owner who gets 100% - total perpetual royalties
 		payout_object.payout.insert(owner_id, subconsultants_to_payout(10000 - total_perpetual, balance_u128));
 
-        let supporters = token.supporters;
         //get the meatdata object to update total funding
         let mut token_meta = self.token_metadata_by_id.get(&token_id).expect("No token for metadata");
 
+        //clear out the current phase
+        token_meta.phase = None;
+        //let total_funding = token_meta.funding_total;
+
         //add all supporters funds
-        let mut total_funding = 0;
-        for (_k, v) in supporters.iter() {
-            total_funding += *v;
-        };
-        let remaining_funds = total_funding - balance_u128;
+        let total_funding = token_meta.funding_total.unwrap();
+        //let remaining_funds = token_meta.funding_total.sum(balance_u128);
         //deduct this payout from the total supporter funds
-        token_meta.funding_total.replace(remaining_funds);
+        token_meta.funding_total.replace(&total_funding - &balance_u128);
 
         //clear subconsultants for the next phase
-        //token.subconsultants.clear();
+        token.subconsultants.clear();
+
+        token_meta.reference.replace("Project".to_string());
+
+        //insert the token ID and metadata
+        self.token_metadata_by_id.insert(&token_id, &token_meta);
+
+        //insert the token ID and sub consultants
+        self.tokens_by_id.insert(&token_id, &token);
+
+        // NEAR payouts
+        for (receiver_id, amount) in payout_object.payout.clone() {
+            Promise::new(receiver_id).transfer(amount.0);
+        }
 
         //return the payout object
 		payout_object
+
     }
 }
