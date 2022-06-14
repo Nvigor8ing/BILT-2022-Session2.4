@@ -5,7 +5,40 @@ Think KickStarter or Go FundMe with the added benefit we can onboard Architects 
 
 ---
 
-This [React] app was initialized with [create-near-app]
+UI Images
+===========
+
+**Create a new Proposal**
+
+![ui01](images/ui-03.JPG)
+
+**Find proposals to support and show them some love!**
+
+![ui02](images/ui-02.JPG)
+
+**Proposal becomes a project**
+
+![ui03](images/ui-08.JPG)
+
+**Time to build! Create a phase for the project, allocate percentage of overall funds required for this phase and appoint a Project Lead (Architect/ Project Manager etc.**
+
+![ui04](images/ui-04.JPG)
+
+**Project Lead logins in to create a team of consultants**
+
+![ui04](images/ui-05.JPG)
+
+**Team is created with percentage payouts and BIM file is made available over IPFS**
+
+![ui04](images/ui-09.JPG)
+
+**With the Team formed and work completed on the BIM file then it is time to pay them based on the percentages allocated for the current phase we are in**
+
+![ui04](images/ui-10.JPG)
+
+**With payment made to all parties for that phase including the project lead it is time for the project to enter a new phase. For example Design Development is complete and now it is Construction Documentation**
+
+![ui04](images/ui-11.JPG)
 
 
 Quick Start
